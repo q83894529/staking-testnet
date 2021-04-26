@@ -13,6 +13,7 @@
       integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
       crossorigin="anonymous"
     />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" />
   </head>
 
   <body>
@@ -21,9 +22,9 @@
         <h1 class="col-sm-6 col-lg-8 text-center">GeneChain Staking - TESTNET</h1>
 
         <div class="col-sm-6 col-lg-4 col-xl-3 order-xl-9">
-          <div class="card">
+          <div class="card mb-2">
+            <div class="card-header">Current Account</div>
             <div class="card-body">
-              <h4 class="card-title">Account Info</h4>
               <button class="btn btn-primary btn-lg btn-block" id="connectButton" hidden>
                 Click here to connect your wallet
               </button>
@@ -32,51 +33,84 @@
               </button>
               <div id="accountDetail" hidden>
                 <p>
-                  Address: <label id="address">-</label><br />
-                  Balance: <label id="balance">-</label> <small class="text-muted">RNA</small><br />
-                  Profit: <label id="profit">-</label> <small class="text-muted">RNA</small>
+                  <strong>Address:</strong><br />
+                  <samp id="address" class="small">-</samp>
+                </p>
+                <p>
+                  <strong>Balance:</strong><br />
+                  <span class="small">
+                    <samp class="text-muted">- RNA: </samp><span id="balance">-</span><br />
+                    <samp class="text-muted">- ARM: </samp><span id="balanceARM">-</span><br />
+                  </span>
+                </p>
+                <p>
+                  <strong>Profit:</strong>
+                  <br />
+                  <span class="small">
+                    <samp id="profit">-</samp><samp class="small text-muted">RNA</samp>
+                    <button
+                      class="btn btn-sm btn-outline-primary"
+                      id="withdrawProfit"
+                      title="Click here to withdraw you profit"
+                    >
+                      Withdraw
+                    </button>
+                    <br />
+                    <small class="text-muted">- This is your settled profit. Unsettled rewards can be found in</small>
+                    <span class="badge badge-secondary">Staked Candidates</span>
+                    <br />
+                    <small class="text-muted">
+                      - Unsettled reward will go into your settled profit only after you settle it.
+                    </small>
+                    <br />
+                  </span>
                 </p>
               </div>
             </div>
           </div>
+          <div id="toastHolder"></div>
         </div>
 
         <div class="col-xl-9">
           <section id="stakedCandidates" hidden>
             <h2>Staked Candidates</h2>
-            <table class="table table-striped">
-              <thead class="thead-light">
-                <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Address</th>
-                  <th scope="col">Is Active Validator</th>
-                  <th scope="col">Unsettled Reward</th>
-                  <th scope="col">Staked</th>
-                  <th scope="col">Estimate Reward</th>
-                  <th scope="col">Action</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+            <div class="table-responsive-md">
+              <table class="table table-striped">
+                <thead class="thead-light">
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Address</th>
+                    <th scope="col">Is Active Validator</th>
+                    <th scope="col">Unsettled Reward</th>
+                    <th scope="col">Staked</th>
+                    <th scope="col">Estimate Reward</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
             <div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div>
           </section>
 
           <section id="topCandidates">
             <h2>Top Candidates</h2>
-            <table class="table table-striped">
-              <thead class="thead-light">
-                <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Address</th>
-                  <th scope="col">Is Active Validator</th>
-                  <th scope="col">Staking Power</th>
-                  <th scope="col">Total Staked</th>
-                  <th scope="col">APY</th>
-                  <th scope="col">Action</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+            <div class="table-responsive-md">
+              <table class="table table-striped">
+                <thead class="thead-light">
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Address</th>
+                    <th scope="col">Is Active Validator</th>
+                    <th scope="col">Staking Power</th>
+                    <th scope="col">Total Staked</th>
+                    <th scope="col">APY</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
             <div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div>
           </section>
         </div>
@@ -103,32 +137,71 @@
       </div>
     </div>
 
-    <div class="modal" id="stakeDialog" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Stake a candidate</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <form>
-              <!-- placeholder for template -->
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button id="confirm" type="button" class="btn btn-primary">
-              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
-              Stake
-            </button>
-            <button type="button" data-dismiss="modal" class="btn btn-secondary">Cancel</button>
+    <!-- modal-template-->
+    <script type="text/template" id="modal-template">
+      <div class="modal fade" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <% if (title) {%>
+              <div class="modal-header <%=titleClasses%>">
+                <h5 class="modal-title"><%=title%></h5>
+                <% if (closeButton) { %>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                <%}%>
+              </div>
+            <%}%>
+            <div class="modal-body <%=bodyClasses%>"><%=message%></div>
+            <% if (buttons||closeButton) { %>
+              <div class="modal-footer">
+                <% if (buttons) { for (button of buttons){%>
+                  <button type="button" id="<%=button.id%>" class="btn <%=button.classNames%>"><%=button.text%></button>
+                <%} if (closeButton){%>
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <%}}else if (closeButton){%>
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <%}%>
+              </div>
+            <%}%>
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Templates -->
+    </script>
+    <!-- modal-alert-template-->
+    <script type="text/template" id="modal-alert-template">
+      <%if (closeButton) {%>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      <%}if (title){%>
+        <h5 class="alert-heading"><%=title%></h5><hr/>
+      <%}if (message) { print(message,"<br/>") } if (error) {%>
+        <h6 class="text-break"><%=error.message%></h6>
+        <samp class="small text-break">
+          Code: <%=error.code%>
+          <%if(error.details){%>
+            Data: <%=error.details%>
+          <%}%>
+        </samp>
+      <%}%>
+    </script>
+    <!-- toast-template-->
+    <script type="text/template" id="toast-template">
+      <div class="toast" data-delay="3000" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header <%=titleClasses%>">
+          <strong class="mr-auto"><%=title%></strong>
+          <small><%=decor%></small>
+          <% if (closeButton) { %>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          <%}%>
+        </div>
+        <div class="toast-body"><%=message%></div>
+      </div>
+    </script>
+    <!-- candate-template -->
     <script type="text/template" id="candidate-template">
       <td><%= id %></td>
       <td class="text-break">
@@ -152,7 +225,7 @@
       <td>
           <% if (apy>0) { %>
               <%= apy.toFixed(2) %>%
-              <a href="#" data-toggle="popover" title="Details" data-html="true" data-content='<code class="small">APY = Estimate daily reward * 365 / Total staked RNA</code><hr/>Estimate daily reward: <%= rewardPerDay.toFixed(2) %><small class="text-muted">RNA</small><br/>Total staked RNA: <%=stakeRNA%><small class="text-muted">RNA</small>'>More info</a>
+              <button class="btn btn-link btn-sm p-0"  data-toggle="popover" title="Details" data-html="true" data-content='<code class="small">APY = Estimate daily reward * 365 / Total staked RNA</code><hr/>Estimate daily reward: <%= rewardPerDay.toFixed(2) %><small class="text-muted">RNA</small><br/>Total staked RNA: <%=stakeRNA%><small class="text-muted">RNA</small>'>More info</button>
               <% if (!active) { %>
                   <br/><small class="text-muted">Estimate APY If active</small>
               <%}%>
@@ -165,6 +238,7 @@
           </div>
       </td>
     </script>
+    <!-- staked-template -->
     <script type="text/template" id="staked-template">
       <td><%= id %></td>
       <td class="text-break">
@@ -183,7 +257,7 @@
       <td class="text-break">
           <%= ready?profit:'-' %>
           <% if (profit!=0) { %>
-              <button class="btn btn-link btn-sm" id="settle" data-toggle="tooltip" title="Click here to settle profit">Settle</button>
+              <button class="btn btn-sm btn-outline-primary" id="settle" data-toggle="tooltip" title="Click here to settle profit">Settle</button>
           <%}%>
       </td>
       <td>
@@ -196,7 +270,7 @@
               <% if (active) { %>
                   Estimate daily reward: <%= (rewardPerDay*stakedPower/power).toFixed(2) %><small class="text-muted">RNA</small><br/>
                   APY: <%= apy.toFixed(2) %>%<br/>
-                  <a href="#" data-toggle="popover" title="Details" data-html="true" data-content='Power weight: <%=(stakedPower*100/power).toFixed(2)%>%<br/><code class="small">(My Power / Total Power)</code><br/>Estimate daily reward: <%=(rewardPerDay*stakedPower/power).toFixed(2)%><small class="text-muted">RNA</small><br/><code class="small">(Candidate estimate daily reward * Power weight)</code><hr/>My Power: <%= stakedPower %><br/>Total Power: <%= power %><br/>Candidate estimate daily reward: <%=rewardPerDay.toFixed(2)%><small class="text-muted">RNA</small>''>More info</a>
+                  <button class="btn btn-link btn-sm p-0" data-toggle="popover" title="Details" data-html="true" data-content='Power weight: <%=(stakedPower*100/power).toFixed(2)%>%<br/><code class="small">(My Power / Total Power)</code><br/>Estimate daily reward: <%=(rewardPerDay*stakedPower/power).toFixed(2)%><small class="text-muted">RNA</small><br/><code class="small">(Candidate estimate daily reward * Power weight)</code><hr/>My Power: <%= stakedPower %><br/>Total Power: <%= power %><br/>Candidate estimate daily reward: <%=rewardPerDay.toFixed(2)%><small class="text-muted">RNA</small>''>More info</button>
               <%}%>
           <%} else print('-')%>
       </td>
@@ -207,29 +281,117 @@
           </div>
       </td>
     </script>
+    <!-- stake-template -->
     <script type="text/template" id="stake-template">
-      <div class="form-group row">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Stake a candidate</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="form-group row">
+                <label class="col-sm-12 col-form-label">Candidate address:</label>
+                <div class="col-sm-10"><samp><%= validator %></samp></div>
+              </div>
+              <div class="form-group row no-gutters m-0">
+                  <label for="rna" class="col-sm-3 col-form-label">RNA to stake:</label>
+                  <div class="col-11 col-sm-2">
+                      <input id="rna" class="form-control" type="number" min="1" placeholder="0"/>
+                  </div>
+                  <label class="col-1 col-form-label text-muted">RNA</label>
+              </div>
+              <div class="form-group row no-gutters">
+                <label class="col-sm-9 offset-sm-3 small text-muted">Balance: <%=accountData.balance%><small class="text-muted"> RNA</small></label>
+              </div>
+              <div class="form-group row no-gutters m-0">
+                  <label for="arm" class="col-sm-3 col-form-label">ARM to stake:</label>
+                  <div class="col-11 col-sm-2">
+                      <input id="arm" class="form-control" type="number" min="0" placeholder="0"/>
+                  </div>
+                  <label class="col-1 col-form-label text-muted">ARM</label>
+              </div>
+              <div class="form-group row no-gutters">
+                <label class="col-sm-9 offset-sm-3 small text-muted">Balance: <%=accountData.balanceARM%><small class="text-muted"> ARM</small></label>
+              </div>
+              <small class="form-text text-muted">
+                  You can stake at least 1 RNA or 3 ARMs or both.<br/>
+                  Staking power will be <code>RNA</code> if ARM is less then 3, otherwise, <code>RNA * ln(ARM)</code>
+              </small>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button id="confirm" type="button" class="btn btn-primary">
+              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+              Stake
+            </button>
+            <button type="button" data-dismiss="modal" class="btn btn-secondary">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </script>
+    <!-- unstake-template -->
+    <script type="text/template" id="unstake-template">
+      <form>
+        <div class="form-group row">
           <label class="col-sm-12 col-form-label">Candidate address:</label>
-          <div class="col-sm-10"><%= validator %></div>
-      </div>
-      <div class="form-group row no-gutters">
-          <label for="rna" class="col-sm-4 col-form-label">RNA to stake:</label>
-          <div class="col-sm-4">
-              <input id="rna" class="form-control" type="number" min="1" placeholder="0"/>
+          <div class="col-sm-10"><%= validator %></samp></div>
+        </div>
+        <div class="form-group row no-gutters m-0">
+            <label for="rna" class="col-sm-4 col-form-label">RNA to unstake:</label>
+            <div class="col-11 col-sm-2">
+                <input id="rna" class="form-control" type="number" min="1" placeholder="0"/>
+            </div>
+            <label class="col-1 col-form-label text-muted">RNA</label>
+        </div>
+        <div class="form-group row no-gutters">
+          <label class="col-sm-9 offset-sm-4 small text-muted">Maximum: <%=stakedRNA%><small class="text-muted"> RNA</small></label>
+        </div>
+        <div class="form-group row no-gutters m-0">
+            <label for="arm" class="col-sm-4 col-form-label">ARM to unstake:</label>
+            <div class="col-11 col-sm-2">
+                <input id="arm" class="form-control" type="number" min="0" placeholder="0"/>
+            </div>
+            <label class="col-1 col-form-label text-muted">ARM</label>
+        </div>
+        <div class="form-group row no-gutters">
+          <label class="col-sm-9 offset-sm-4 small text-muted">Maximum: <%=stakedARM%><small class="text-muted"> ARM</small></label>
+        </div>
+        <small class="form-text text-muted">
+            You can not unstake before block <code><%= lockBlock + 86400 %></code>, current block: <code id="currentBlock"><%print(parseInt(lastBlock.number))%></code>.
+        </small>
+      </form>
+    </script>
+    <!-- settle-template -->
+    <script type="text/template" id="settle-template">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Settle Reward</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
           </div>
-          <label class="col-sm-1 col-form-label text-muted">RNA</label>
-      </div>
-      <div class="form-group row no-gutters">
-          <label for="arm" class="col-sm-4 col-form-label">ARM to stake:</label>
-          <div class="col-sm-4">
-              <input id="arm" class="form-control" type="number" min="0" placeholder="0"/>
+          <div class="modal-body">
+                <p>Candidate address: <br/>
+                <samp><%= validator %></samp></p>
+                <p>Estimate reward to settle: <br/>
+                <samp><%= profit %></samp><small class="text-muted">RNA</small></p>
+                <small class="text-muted">
+                    Please note: All unsettled reward will be settled.
+                </small>
           </div>
-          <label class="col-sm-1 col-form-label text-muted">ARM</label>
-      </div>
-      <small class="form-text text-muted">
-          You can stake at least 1 RNA or 3 ARMs or both.<br/>
-          Staking power will be <code>RNA</code> if ARM is less then 3, otherwise, <code>RNA * ln(ARM)</code>
-      </small>
+          <div class="modal-footer">
+            <button id="confirm" type="button" class="btn btn-primary">
+              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+              Settle
+            </button>
+            <button type="button" data-dismiss="modal" class="btn btn-secondary">Cancel</button>
+          </div>
+        </div>
     </script>
     <script src="bundle.js" defer></script>
   </body>

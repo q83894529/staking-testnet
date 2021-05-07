@@ -28,7 +28,7 @@
   <body>
     <main class="container-fluid">
       <div class="row justify-content-center">
-        <h1 class="col-sm-6 col-lg-8 text-center">GeneChain Staking - TESTNET</h1>
+        <h1 class="col-sm-6 col-lg-8 text-center">GeneChain Staking - <span id="network"></span></h1>
 
         <div class="col-sm-6 col-lg-4 col-xl-3 order-xl-9">
           <div class="card mb-2">
@@ -51,6 +51,7 @@
                   <span class="small">
                     <samp class="text-muted">- RNA: </samp><span id="balance">-</span><br />
                     <samp class="text-muted">- ARM: </samp><span id="balanceARM">-</span><br />
+                    <button id="exchangeARM" class="btn btn-outline-primary btn-sm">VBC&#8651;ARM</button><br />
                   </span>
                 </p>
                 <hr />
@@ -58,7 +59,7 @@
                   <strong>Settled Profit:</strong>
                   <br />
                   <span class="small">
-                    <samp id="profit">-</samp><samp class="small text-muted">RNA</samp>
+                    <samp id="profit">-</samp><samp class="small text-muted">RNA</samp><br />
                     <button
                       class="btn btn-sm btn-outline-primary"
                       id="withdrawProfit"
@@ -234,7 +235,7 @@
           </td>
       <td>
         <%if(ready){%>
-          <div class="btn-group" role="group" aria-label="Basic example">
+          <div class="btn-group" role="group">
           <button class="btn btn-outline-primary btn-sm" id="stake">Stake</button>
           <button class="btn btn-outline-primary btn-sm" id="unstake">Unstake</button>
           </div>
@@ -258,7 +259,7 @@
       </td>
       <td class="text-break">
           <%= ready?profit:'-' %>
-          <% if (profit!=0) { %>
+          <% if (ready&&profit!=0) { %>
               <button class="btn btn-sm btn-outline-primary" id="settle" data-toggle="tooltip" title="Click here to settle profit">Settle</button>
           <%}%>
       </td>
@@ -278,7 +279,7 @@
       </td>
       <td>
         <%if(ready){%>
-          <div class="btn-group" role="group" aria-label="Basic example">
+          <div class="btn-group" role="group">
           <button class="btn btn-outline-primary btn-sm" id="stake">Stake</button>
           <button class="btn btn-outline-primary btn-sm" id="unstake">Unstake</button>
           </div>
@@ -313,7 +314,7 @@
                   <label class="col-1 col-form-label text-muted">RNA</label>
               </div>
               <div class="form-group row no-gutters">
-                <label class="col-sm-9 offset-sm-3 small text-muted">Balance: <%=accountData.balance%><small class="text-muted"> RNA</small></label>
+                <label class="col-sm-9 offset-sm-3 small text-muted">Balance: <%=accountData.formatEther(accountData.balance)%><small class="text-muted"> RNA</small></label>
               </div>
               <div class="form-group row no-gutters m-0">
                   <label for="arm" class="col-sm-3 col-form-label">ARM to stake:</label>
@@ -323,7 +324,7 @@
                   <label class="col-1 col-form-label text-muted">ARM</label>
               </div>
               <div class="form-group row no-gutters">
-                <label class="col-sm-9 offset-sm-3 small text-muted">Balance: <%=accountData.balanceARM%><small class="text-muted"> ARM</small></label>
+                <label class="col-sm-9 offset-sm-3 small text-muted">Balance: <%=accountData.formatEther(accountData.balanceARM)%><small class="text-muted"> ARM</small></label>
               </div>
               <small class="form-text text-muted">
                   You can stake at least 1 RNA or 3 ARMs or both.<br/>
@@ -400,6 +401,67 @@
             <button type="button" data-dismiss="modal" class="btn btn-secondary">Cancel</button>
           </div>
         </div>
+    </script>
+    <!-- exchange-arm-template -->
+    <script type="text/template" id="exchange-arm-template">
+      <p>
+        <span class="text-muted">Current Balance:</span>
+        <samp class="small" id="balanceARM"><%= formatEther(balanceARM) %></samp><small class="text-muted">ARM</small>
+        <samp class="small" id="balanceVBC"><span class="spinner-border spinner-border-sm text-secondary" role="status" aria-hidden="true"></span></samp><small class="text-muted">VBC</small><br/>
+        <span class="text-muted">Staked:</span>
+        <samp class="small" id="stakedVBC"><span class="spinner-border spinner-border-sm text-secondary" role="status" aria-hidden="true"></span></samp><small class="text-muted">VBC</small>
+        <span class="text-muted">Remain Allowance:</span>
+        <samp class="small" id="allowedVBC"><span class="spinner-border spinner-border-sm text-secondary" role="status" aria-hidden="true"></span></samp><small class="text-muted">VBC</small>
+      </p>
+      <span id="approveSpinner" class="spinner-border spinner-border-sm text-secondary" role="status" aria-hidden="true"></span>
+      <div class="form-group row no-gutters m-0" id="approveDiv" hidden>
+        <label for="approveVBC" class="col-sm-1 col-form-label">Limit:</label>
+        <div class="col-11 col-sm-2">
+          <input id="approveVBC" class="form-control" type="number" min="0" value="1000" placeholder="0"/>
+        </div>
+        <label class="col-1 col-form-label text-muted">VBC</label>
+        <button id="approve" type="button" class="col-12 col-sm-2 btn btn-sm btn-primary">
+          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+          Approve
+        </button>
+        <br/>
+        <small class="text-muted">
+            You need to approve an amount of VBC that can be transferred to ARM contract before staking.
+        </small>
+      </div>
+      <div class="form-group row no-gutters m-0" id="stakeDiv" hidden>
+        <div class="col-11 col-sm-2">
+          <input id="stakeVBC" class="form-control" type="number" min="0" placeholder="0"/>
+        </div>
+        <label class="col-1 col-form-label text-muted">VBC</label>
+        <div class="btn-group col-12 col-sm-4" role="group">
+          <button id="stake" type="button" class="btn btn-sm btn-outline-primary">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+            Stake
+          </button>
+          <button id="unstake" type="button" class="btn btn-sm btn-outline-primary">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+            Unstake
+          </button>
+        </div>
+        <small class="col-12 text-muted">
+            You can stake VBC to mint ARM and burn ARM to get your VBC back at any time. Mint rate is fixed to 1:1 at the moment.
+        </small>
+      </div>
+      <hr/>
+      <div class="form-group row no-gutters m-0">
+        <label for="vbc" class="col-sm-2 col-form-label">Memo:</label>
+        <div class="col-12 col-sm-6">
+            <input id="memo" class="form-control" placeholder="-"/>
+        </div>
+        <button id="setMemo" type="button" class="col-12 col-sm-2 btn btn-sm btn-outline-primary ml-1">
+          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+          Set
+        </button>
+        <small class="col-12 text-muted">
+          Set your radar address as memo so that your staked VBC can be summed while calculating dividend.
+        </small>
+      </div>
     </script>
     <script src="bundle.js" defer></script>
   </body>

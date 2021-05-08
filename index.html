@@ -27,7 +27,7 @@
       <td>
           <span class="<% if (active) print('text-success'); else print('text-muted')%>"> <% if (active) print('Yes'); else print('No')%> </span>
       </td>
-      <td class="text-break"><%= stakePower==0?'-':stakePower %></td>
+      <td class="text-break"><samp><%= stakePower==0?'-':formatEther(stakePower) %></samp></td>
       <td> <%= ready?stakeRNA:'-' %><small class="text-muted">RNA</small><br/> <%= ready?stakeARM:'-' %><small class="text-muted">ARM</small>
       </td>
       <td> <% if (apy>0) { %> <%= apy.toFixed(2) %>%
@@ -44,12 +44,12 @@
       <td>
           <span class="<% if (active) print('text-success'); else print('text-muted')%>"> <% print(active?'Yes':'No') %> </span>
       </td>
-      <td class="text-break"> <%= ready?profit:'-' %> <% if (ready&&profit!=0) { %> <button class="btn btn-sm btn-outline-primary" id="settle" data-toggle="tooltip" title="Click here to settle profit">Settle</button> <%}%> </td>
+      <td class="text-break"> <%= ready?profit:'-' %> <% if (ready&&profit!=0) { %> <br/><button class="btn btn-sm btn-outline-primary" id="settle" data-toggle="tooltip" title="Click here to settle profit">Settle</button> <%}%> </td>
       <td> <%= ready?stakedRNA:'-' %><small class="text-muted">RNA</small><br/> <%= ready?stakedARM:'-' %><small class="text-muted">ARM</small>
       </td>
       <td> <% if (apy>0) { %> Power%: <%= (stakedPower*100/stakePower).toFixed(2) %>%<br/> <% if (active) { %> Estimate daily reward: <%= (rewardPerDay*stakedPower/stakePower).toFixed(2) %><small class="text-muted">RNA</small><br/>
-                  APY: <%= apy.toFixed(2) %>%<br/>
-                  <button class="btn btn-link btn-sm p-0" data-toggle="popover" title="Details" data-html="true" data-content='Power weight: <%=(stakedPower*100/stakePower).toFixed(2)%>%<br/><code class="small">(My Power / Total Power)</code><br/>Estimate daily reward: <%=(rewardPerDay*stakedPower/stakePower).toFixed(2)%><small class="text-muted">RNA</small><br/><code class="small">(Candidate estimate daily reward * Power weight)</code><hr/>My Power: <%= stakedPower %><br/>Total Power: <%= stakePower %><br/>Candidate estimate daily reward: <%=rewardPerDay.toFixed(2)%><small class="text-muted">RNA</small>''>More info</button> <%}%> <%} else print('-')%> </td>
+                  My APY: <%= (rewardPerDay*stakedPower*365*100/stakePower/stakedRNA).toFixed(2) %>%<br/>
+                  <button class="btn btn-link btn-sm p-0" data-toggle="popover" title="Details" data-html="true" data-content='Weight: <%=(stakedPower*100/stakePower).toFixed(2)%>%<br/><code class="small">(My Power / Total Power)</code><br/>Estimate daily reward: <%=(rewardPerDay*stakedPower/stakePower).toFixed(2)%><small class="text-muted">RNA</small><br/><code class="small">(Candidate estimate daily reward * Power weight)</code><br/>My APY: <%= (rewardPerDay*stakedPower*365*100/stakePower/stakedRNA).toFixed(2) %>%<br/><code>(Estimate daily reward * 365 / Staked RNA) * 100%</code><hr/>My Power:<br/><small class="text-monospace"><%= formatEther(stakedPower) %></small><br/>Total Power:<br/><small class="text-monospace"><%= formatEther(stakePower) %></small><br/>Candidate estimate daily reward:<br/><%=rewardPerDay.toFixed(2)%><small class="text-muted">RNA</small>''>More info</button> <%}%> <%} else print('-')%> </td>
       <td> <%if(ready){%> <div class="btn-group" role="group">
           <button class="btn btn-outline-primary btn-sm" id="stake">Stake</button>
           <button class="btn btn-outline-primary btn-sm" id="unstake">Unstake</button>
@@ -225,4 +225,4 @@
         <small class="col-12 text-muted">
           Set your radar address as memo so that your staked VBC can be summed while calculating dividend.
         </small>
-      </div></script><script src=./main.6090d8cb67ce3a9163c1.js></script></body></html>
+      </div></script><script src=./main.d196f6f8ea46ad981d61.js></script></body></html>

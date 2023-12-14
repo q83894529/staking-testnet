@@ -1,0 +1,57 @@
+{
+  "name": "@genechain-io/staking",
+  "version": "0.2.8",
+  "description": "GeneChain Staking.",
+  "engines": {
+    "node": ">= 10"
+  },
+  "scripts": {
+    "deploy": "./deploy.sh",
+    "start": "webpack-dev-server",
+    "build": "webpack --mode production"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/genechain-io/staking.git"
+  },
+  "files": [
+    "dist/"
+  ],
+  "author": "GeneChain",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/genechain-io/staking/issues"
+  },
+  "homepage": "https://v.genechain.io/",
+  "devDependencies": {
+    "@metamask/eslint-config": "^4.0.0",
+    "@metamask/onboarding": "^1.0.0",
+    "@sentry/browser": "^6.4.0",
+    "@sentry/tracing": "^6.4.0",
+    "@sentry/webpack-plugin": "^1.15.1",
+    "backbone": "^1.4.0",
+    "bootstrap": "^4.6.0",
+    "clean-webpack-plugin": "^3.0.0",
+    "copy-webpack-plugin": "^6.0.2",
+    "eth-sig-util": "^2.5.3",
+    "ethereumjs-util": "^5.1.1",
+    "ethers": "^5.0.32",
+    "gh-pages": "^3.1.0",
+    "html-webpack-plugin": "^5.3.1",
+    "jquery": "^3.6.0",
+    "popper.js": "^1.16.1",
+    "prettier": "2.2.1",
+    "raw-loader": "^4.0.2",
+    "static-server": "^2.2.1",
+    "webpack": "^5.35.1",
+    "webpack-bugsnag-plugins": "^1.7.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
+  },
+  "dependencies": {
+    "@bugsnag/js": "^7.10.0"
+  }
+}
